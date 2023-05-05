@@ -12,15 +12,18 @@ package_loader <- function(package_list) {
 
 model_summary <- function(model) {
   summ <- summary(model)
-  odds_ratio <- exp(fixef(model))
+  odds_ratio <- round(exp(fixef(model)), 3)
   mod_se <- sqrt(diag(vcov(model)))
   
   output <- cbind(
-    summ$coefficients,
+    round(summ$coefficients, 3),
     odds_ratio,
-    OR_ci_ll = fixef(model) - (1.96 * mod_se),
-    OR_ci_ul = fixef(model) + (1.96 * mod_se)
+    OR_ci_ll = round(fixef(model) - (1.96 * mod_se), 3),
+    OR_ci_ul = round(fixef(model) + (1.96 * mod_se), 3)
   )
+  
+  output <- as.data.frame(output)
+  names(output)[4] <- 'p_value'
   
   return(output)
 }
