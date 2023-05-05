@@ -24,6 +24,58 @@ raw_data <- list.files(path = 'study 2/data',
                        full.names = T) %>%
   map_df(~read_csv(., col_types = cols(.default = 'c')))
 
+
+# get demographics
+demo_data <- raw_data %>%
+  select('participant',
+         'ageRate.response',
+         'eflResp.keys',
+         'genderResp.keys',
+         'ethResp.keys')
+
+# age
+demo_data %>%
+  select('participant', 'ageRate.response') %>%
+  na.omit() %>%
+  mutate_at(.vars = 'ageRate.response', .funs = as.numeric) %>%
+  get_summary_stats(ageRate.response, type = 'mean_sd')
+
+
+# english first
+demo_data %>%
+  select('participant', 'eflResp.keys') %>%
+  na.omit() %>%
+  mutate(response = if_else(eflResp.keys == 'left', 'yes', 'no')) %>%
+  count(response)
+
+# gender
+demo_data %>%
+  select('participant', 'genderResp.keys') %>%
+  na.omit() %>%
+  mutate(response = case_when(
+    genderResp.keys == 'left' ~ 'male',
+    genderResp.keys == 'right' ~ 'female',
+    genderResp.keys == 'down' ~ 'not listed'
+  )) %>%
+  count(response) %>%
+  mutate(prop = round(n / sum(n) * 100, 2))
+
+demo_data %>%
+  select('participant', 'ethResp.keys') %>%
+  na.omit() %>%
+  mutate(response = case_when(
+    ethResp.keys == 'a' ~ 'asian',
+    ethResp.keys == 'b' ~ 'black',
+    ethResp.keys == 'h' ~ 'latino/a',
+    ethResp.keys == 'm' ~ 'middle eastern',
+    ethResp.keys == 'n' ~ 'native american',
+    ethResp.keys == 'w' ~ 'white',
+    ethResp.keys == 'o' ~ 'not listed'
+  )) %>%
+  count(response) %>%
+  mutate(prop = round(n / sum(n) * 100, 2))
+
+
 # prep the dataframe
 clean_data <- raw_data %>%
   select('stimID',
