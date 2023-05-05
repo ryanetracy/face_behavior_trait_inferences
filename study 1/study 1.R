@@ -19,10 +19,10 @@ source('misc_functions.R')
 package_loader(pckgs)
 
 # read in all data files
-raw_data <- list.files(path = "study 1/data",
-                       pattern = "*.csv",
+raw_data <- list.files(path = 'study 1/data',
+                       pattern = '*.csv',
                        full.names = T) %>%
-  map_df(~read_csv(., col_types = cols(.default = "c")))
+  map_df(~read_csv(., col_types = cols(.default = 'c')))
 
 # prep the dataframe
 clean_data <- raw_data %>%
@@ -58,7 +58,7 @@ clean_data <- raw_data %>%
 
 # now sort out the implicit and mismatch responses (since explicit is a filler)
 test_data <- clean_data %>%
-  filter(trialType != "explicit") %>%
+  filter(trialType != 'explicit') %>%
   mutate(behaviorCat = case_when(
     trust == 'Trustworthy' & congruence == 'congruent' ~ 'positive',
     trust == 'Untrustworthy' & congruence == 'incongruent' ~ 'positive',
@@ -90,7 +90,7 @@ mod1 <- glmer(recognition ~ trial_c * trust_c * congruence_c
               + (trust_c|participant) 
               + (1|stimID:behavior),
               control = glmerControl(
-                optimizer = "bobyqa",
+                optimizer = 'bobyqa',
                 optCtrl = list(maxfun = 2e6)
               ),
               family = binomial,
@@ -101,13 +101,13 @@ model_summary(mod1)
                        pred = trial_c, 
                        modx = congruence_c, 
                        #  mod2 = trustC,
-                       colors = "green",
-                       modx.labels = c("Congruent", "Incongruent"),
-                       #  mod2.labels = c("Untrustworthy", "Trustworthy"),
-                       pred.labels = c("Mismatch", "Match"),
-                       x.label = "Trial Type",
-                       y.label = "Trait Recognition",
-                       legend.main = "Congruence") + 
+                       colors = 'green',
+                       modx.labels = c('Congruent', 'Incongruent'),
+                       #  mod2.labels = c('Untrustworthy', 'Trustworthy'),
+                       pred.labels = c('Face-Based', 'Behaivor-Based'),
+                       x.label = 'Trial Type',
+                       y.label = 'Trait Recognition',
+                       legend.main = 'Congruence') + 
     theme_bw() + 
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
@@ -115,33 +115,33 @@ model_summary(mod1)
 
 
 # split by congruence (main hypothesis test of the two-way interaction)
-congruent <- test_data %>%
-  filter(congruence == 'congruent')
-incongruent <- test_data %>%
-  filter(congruence == 'incongruent')
+behavior_based <- test_data %>%
+  filter(trial_c == 1)
+face_based <- test_data %>%
+  filter(trial_c == -1)
 
-# model congruence effect first
-mod2.1 <- glmer(recognition ~ trial_c 
+# model behavior-based effect first
+mod2.1 <- glmer(recognition ~ congruence_c 
                 + (1|participant) 
                 + (1|stimID:behavior),
                 control = glmerControl(
-                  optimizer = "bobyqa",
+                  optimizer = 'bobyqa',
                   optCtrl = list(maxfun = 2e7)
                 ),
                 family = binomial,
-                data = congruent)
+                data = behavior_based)
 model_summary(mod2.1)
 
-# now incongruence
-mod2.2 <- glmer(recognition ~ trial_c 
+# now face-based
+mod2.2 <- glmer(recognition ~ congruence_c 
                 + (1|participant) 
                 + (1|stimID:behavior),
                 control = glmerControl(
-                  optimizer = "bobyqa",
+                  optimizer = 'bobyqa',
                   optCtrl = list(maxfun = 2e7)
                 ),
                 family = binomial,
-                data = incongruent)
+                data = face_based)
 model_summary(mod2.2)
 
 
@@ -158,7 +158,7 @@ mod3.1 <- glmer(recognition ~ trial_c * congruence_c
                 + (1|participant) 
                 + (1|stimID:behavior),
                 control = glmerControl(
-                  optimizer = "bobyqa",
+                  optimizer = 'bobyqa',
                   optCtrl = list(maxfun = 2e6)
                 ),
                 family = binomial,
@@ -167,13 +167,13 @@ model_summary(mod3.1)
 
 
 # simple effects for the two-way interaction for the trustworthy analysis
-con_trust <- trust %>%
-  filter(congruence == 'congruent')
-incon_trust <- trust %>%
-  filter(congruence == 'incongruent')
+bx_trust <- trust %>%
+  filter(trialType == 'behavior_based')
+face_trust <- trust %>%
+  filter(trialType == 'face_based')
 
-# congruent 
-mod4.1 <- glmer(recognition ~ trial_c 
+# behavior-based 
+mod4.1 <- glmer(recognition ~ congruence_c 
                 + (1|participant) 
                 + (1|stimID:behavior), 
                 control = glmerControl(
@@ -181,12 +181,12 @@ mod4.1 <- glmer(recognition ~ trial_c
                   optCtrl = list(maxfun = 2e6)
                 ),
                 family = binomial,
-                data = con_trust)
+                data = bx_trust)
 model_summary(mod4.1)
 
 
-# incongruent
-mod4.2 <- glmer(recognition ~ trial_c 
+# face-based
+mod4.2 <- glmer(recognition ~ congruence_c 
                 + (1|participant) 
                 + (1|stimID:behavior), 
                 control = glmerControl(
@@ -194,15 +194,14 @@ mod4.2 <- glmer(recognition ~ trial_c
                   optCtrl = list(maxfun = 2e6)
                 ),
                 family = binomial,
-                data = incon_trust)
-
+                data = face_trust)
 model_summary(mod4.2)
 
 
 # untrustworthy tests 
 mod3.2 <- glmer(recognition ~ trial_c * congruence_c 
                 + (1|participant) 
-                + (1|stimID:behavior), 
+                + (0 + trial_c|stimID:behavior), 
                 control = glmerControl(
                   optimizer = 'bobyqa',
                   optCtrl = list(maxfun = 2e6)
@@ -226,7 +225,7 @@ trust_labs <- c('Trustworthy Targets', 'Untrustworthy Targets')
 names(trust_labs) <- c('Trustworthy', 'Untrustworthy')
 
 
-ggplot(participant_table, aes(trialType, mean, fill = congruence)) +
+ggplot(participant_table, aes(congruence, mean, fill = trialType)) +
   geom_point(position = position_jitterdodge(.1, .05, .9),
              alpha = .5,
              color = 'black') +
@@ -234,13 +233,13 @@ ggplot(participant_table, aes(trialType, mean, fill = congruence)) +
               alpha = .9,
               position = position_dodge(.9)) +
   geom_point(data = summary_table,
-             aes(trialType, mean),
+             aes(congruence, mean),
              color = 'black',
              shape = 7,
              size = 3,
              position = position_dodge(.9)) +
   geom_errorbar(data = summary_table,
-                aes(trialType,
+                aes(congruence,
                     mean,
                     ymin = mean - ci,
                     ymax = mean + ci),
@@ -250,11 +249,11 @@ ggplot(participant_table, aes(trialType, mean, fill = congruence)) +
   theme_bw() +
   facet_wrap(~ trust,
              labeller = labeller(trust = trust_labs)) +
-  scale_fill_manual(labels = c('Face-Behavior Congruence',
-                               'Face-Behavior Incongruence'),
+  scale_fill_manual(labels = c('Behiavior-Based\nTrials',
+                              'Face-Based\nTrials'),
                     values = c('#006bb6', '#f58426')) +
-  scale_x_discrete(labels = c('Behiavior-Based\nTrials',
-                              'Face-Based\nTrials')) + 
+  scale_x_discrete(labels = c('Face-Behavior\nCongruence',
+                               'Face-Behavior\nIncongruence')) + 
   labs(x = '',
        y = 'Inference Rate',
        fill = '') +
