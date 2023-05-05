@@ -164,14 +164,14 @@ model_summary(mod1)
           axis.text.x = element_text(angle = 45, size = 8)))
 
 
-# split by trial type (main hypothesis test of the two-way interaction)
-behavior_based <- test_data %>%
-  filter(trial_c == 1)
-face_based <- test_data %>%
-  filter(trial_c == -1)
+# split by congruence (main hypothesis test of the two-way interaction)
+congruent <- test_data %>%
+  filter(congruence_c == 1)
+incongruent <- test_data %>%
+  filter(congruence_c == -1)
 
-# model behavior-based effect first
-mod2.1 <- glmer(recognition ~ congruence_c 
+# model congruence effect first
+mod2.1 <- glmer(recognition ~ trial_c 
                 + (1|participant) 
                 + (0 + trial_c|stimID:behavior),
                 control = glmerControl(
@@ -179,11 +179,11 @@ mod2.1 <- glmer(recognition ~ congruence_c
                   optCtrl = list(maxfun = 2e7)
                 ),
                 family = binomial,
-                data = behavior_based)
+                data = congruent)
 model_summary(mod2.1)
 
-# now face-based
-mod2.2 <- glmer(recognition ~ congruence_c 
+# now incongruent
+mod2.2 <- glmer(recognition ~ trial_c 
                 + (1|participant) 
                 + (0 + trial_c|stimID:behavior),
                 control = glmerControl(
@@ -191,7 +191,7 @@ mod2.2 <- glmer(recognition ~ congruence_c
                   optCtrl = list(maxfun = 2e7)
                 ),
                 family = binomial,
-                data = face_based)
+                data = incongruent)
 model_summary(mod2.2)
 
 

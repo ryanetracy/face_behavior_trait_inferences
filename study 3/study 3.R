@@ -318,7 +318,6 @@ m1 <- glmer(recog ~ trial_c * con_c * dom_c
             family = binomial,
             data = long_data)
 model_summary(m1)
-# irrelevant congruence:dominance interaction
 
 # plot 3-way interaction
 interact_plot(m1,
@@ -338,6 +337,31 @@ interact_plot(m1,
   theme(legend.position = 'top',
         axis.text.x = element_text(angle = 0, vjust = .7))
 
+# congruence:dominance interaction
+m1.1 <- glmer(recog ~ con_c
+              + (1|subj) 
+              + (1|stimID),
+              control = glmerControl(
+                optimizer = 'bobyqa',
+                optCtrl = list(maxfun = 2e7)
+              ),
+              family = binomial,
+              data = filter(long_data, dom_c == 1))
+model_summary(m1.1)
+
+
+m1.2 <- glmer(recog ~ con_c
+              + (1|subj) 
+              + (1|stimID),
+              control = glmerControl(
+                optimizer = 'bobyqa',
+                optCtrl = list(maxfun = 2e7)
+              ),
+              family = binomial,
+              data = filter(long_data, dom_c == -1))
+model_summary(m1.2)
+
+
 # 3-way interaction, explore at each level of facial dominance
 # dominant
 m2 <- glmer(recog ~ trial_c * con_c
@@ -351,8 +375,8 @@ m2 <- glmer(recog ~ trial_c * con_c
             data = filter(long_data, dom_c == 1))
 model_summary(m2)
 
-# dominant, behavior-based
-m2.1 <- glmer(recog ~ con_c 
+# dominant, congruent
+m2.1 <- glmer(recog ~ trial_c 
               + (1|subj) 
               + (1|stimID), 
               control = glmerControl(
@@ -360,11 +384,11 @@ m2.1 <- glmer(recog ~ con_c
                 optCtrl = list(maxfun = 2e7)
               ),
               family = binomial,
-              data = filter(long_data, dom_c == 1 & trial_c == 1))
+              data = filter(long_data, dom_c == 1 & con_c == 1))
 model_summary(m2.1)
 
-# dominant, face-based
-m2.2 <- glmer(recog ~ con_c 
+# dominant, incongruent
+m2.2 <- glmer(recog ~ trial_c 
               + (1|subj) 
               + (1|stimID), 
               control = glmerControl(
@@ -372,7 +396,7 @@ m2.2 <- glmer(recog ~ con_c
                 optCtrl = list(maxfun = 2e7)
               ),
               family = binomial,
-              data = filter(long_data, dom_c == 1 & trial_c == -1))
+              data = filter(long_data, dom_c == 1 & con_c == -1))
 model_summary(m2.2)
 
 
@@ -388,8 +412,8 @@ m3 <- glmer(recog ~ trial_c * con_c
             data = filter(long_data, dom_c == -1))
 model_summary(m3)
 
-# nondominant, behavior-based
-m3.1 <- glmer(recog ~ con_c 
+# nondominant, congruent
+m3.1 <- glmer(recog ~ trial_c 
               + (1|subj) 
               + (1|stimID), 
               control = glmerControl(
@@ -397,11 +421,11 @@ m3.1 <- glmer(recog ~ con_c
                 optCtrl = list(maxfun = 2e7)
               ),
               family = binomial,
-              data = filter(long_data, dom_c == -1 & trial_c == 1))
+              data = filter(long_data, dom_c == -1 & con_c == 1))
 model_summary(m3.1)
 
-# nondominant, face-based
-m3.2 <- glmer(recog ~ con_c 
+# nondominant, incongruent
+m3.2 <- glmer(recog ~ trial_c 
               + (1|subj) 
               + (1|stimID), 
               control = glmerControl(
@@ -409,7 +433,7 @@ m3.2 <- glmer(recog ~ con_c
                 optCtrl = list(maxfun = 2e7)
               ),
               family = binomial,
-              data = filter(long_data, dom_c == -1 & trial_c == -1))
+              data = filter(long_data, dom_c == -1 & con_c == -1))
 model_summary(m3.2)
 
 

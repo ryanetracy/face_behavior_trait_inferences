@@ -168,13 +168,13 @@ model_summary(mod1)
 
 
 # split by congruence (main hypothesis test of the two-way interaction)
-behavior_based <- test_data %>%
-  filter(trial_c == 1)
-face_based <- test_data %>%
-  filter(trial_c == -1)
+congruent <- test_data %>%
+  filter(congruence_c == 1)
+incongruent <- test_data %>%
+  filter(congruence_c == -1)
 
-# model behavior-based effect first
-mod2.1 <- glmer(recognition ~ congruence_c 
+# model congruent trials first
+mod2.1 <- glmer(recognition ~ trial_c 
                 + (1|participant) 
                 + (1|stimID:behavior),
                 control = glmerControl(
@@ -182,11 +182,11 @@ mod2.1 <- glmer(recognition ~ congruence_c
                   optCtrl = list(maxfun = 2e7)
                 ),
                 family = binomial,
-                data = behavior_based)
+                data = congruent)
 model_summary(mod2.1)
 
-# now face-based
-mod2.2 <- glmer(recognition ~ congruence_c 
+# now incongruent
+mod2.2 <- glmer(recognition ~ trial_c 
                 + (1|participant) 
                 + (1|stimID:behavior),
                 control = glmerControl(
@@ -194,7 +194,7 @@ mod2.2 <- glmer(recognition ~ congruence_c
                   optCtrl = list(maxfun = 2e7)
                 ),
                 family = binomial,
-                data = face_based)
+                data = incongruent)
 model_summary(mod2.2)
 
 
@@ -220,13 +220,13 @@ model_summary(mod3.1)
 
 
 # simple effects for the two-way interaction for the trustworthy analysis
-bx_trust <- trust %>%
-  filter(trialType == 'behavior_based')
-face_trust <- trust %>%
-  filter(trialType == 'face_based')
+trust_con <- trust %>%
+  filter(congruence_c == 1)
+trust_incon <- trust %>%
+  filter(congruence_c == -1)
 
 # behavior-based 
-mod4.1 <- glmer(recognition ~ congruence_c 
+mod4.1 <- glmer(recognition ~ trial_c 
                 + (1|participant) 
                 + (1|stimID:behavior), 
                 control = glmerControl(
@@ -234,12 +234,12 @@ mod4.1 <- glmer(recognition ~ congruence_c
                   optCtrl = list(maxfun = 2e6)
                 ),
                 family = binomial,
-                data = bx_trust)
+                data = trust_con)
 model_summary(mod4.1)
 
 
 # face-based
-mod4.2 <- glmer(recognition ~ congruence_c 
+mod4.2 <- glmer(recognition ~ trial_c 
                 + (1|participant) 
                 + (1|stimID:behavior), 
                 control = glmerControl(
@@ -247,7 +247,7 @@ mod4.2 <- glmer(recognition ~ congruence_c
                   optCtrl = list(maxfun = 2e6)
                 ),
                 family = binomial,
-                data = face_trust)
+                data = trust_incon)
 model_summary(mod4.2)
 
 

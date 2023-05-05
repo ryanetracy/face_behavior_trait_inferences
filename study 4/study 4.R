@@ -315,7 +315,7 @@ m1 <- glmer(recog ~ trial_c * con_c * trust_c
             family = binomial,
             data = long_data)
 model_summary(m1)
-# irrelevant congruence:dominance interaction
+
 
 # plot 3-way interaction
 interact_plot(m1,
@@ -348,28 +348,28 @@ m2 <- glmer(recog ~ trial_c * con_c
             data = filter(long_data, trust_c == 1))
 model_summary(m2)
 
-# trustworthy, behavior-based
-m2.1 <- glmer(recog ~ con_c 
+# trustworthy, congruent
+m2.1 <- glmer(recog ~ trial_c 
               + (1|subj) 
-              + (1|stimID), 
+              + (0 + trial_c|stimID), 
               control = glmerControl(
                 optimizer = 'bobyqa', 
                 optCtrl = list(maxfun = 2e7)
               ),
               family = binomial,
-              data = filter(long_data, trust_c == 1 & trial_c == 1))
+              data = filter(long_data, trust_c == 1 & con_c == 1))
 model_summary(m2.1)
 
-# trustworthy, face-based
-m2.2 <- glmer(recog ~ con_c 
+# trustworthy, incongruent
+m2.2 <- glmer(recog ~ trial_c 
               + (1|subj) 
-              + (1|stimID), 
+              + (0 + trial_c|stimID), 
               control = glmerControl(
                 optimizer = 'bobyqa', 
                 optCtrl = list(maxfun = 2e7)
               ),
               family = binomial,
-              data = filter(long_data, trust_c == 1 & trial_c == -1))
+              data = filter(long_data, trust_c == 1 & con_c == -1))
 model_summary(m2.2)
 
 
@@ -385,8 +385,8 @@ m3 <- glmer(recog ~ trial_c * con_c
             data = filter(long_data, trust_c == -1))
 model_summary(m3)
 
-# untrustworthy, behavior-based
-m3.1 <- glmer(recog ~ con_c 
+# untrustworthy, congruent
+m3.1 <- glmer(recog ~ trial_c 
               + (1|subj) 
               + (1|stimID), 
               control = glmerControl(
@@ -394,19 +394,19 @@ m3.1 <- glmer(recog ~ con_c
                 optCtrl = list(maxfun = 2e7)
               ),
               family = binomial,
-              data = filter(long_data, trust_c == -1 & trial_c == 1))
+              data = filter(long_data, trust_c == -1 & con_c == 1))
 model_summary(m3.1)
 
-# untrustworthy, face-based
-m3.2 <- glmer(recog ~ con_c 
+# untrustworthy, incongruent
+m3.2 <- glmer(recog ~ trial_c 
               + (1|subj) 
-              + (1|stimID), 
+              + (0 + trial_c|stimID), 
               control = glmerControl(
                 optimizer = 'bobyqa', 
                 optCtrl = list(maxfun = 2e7)
               ),
               family = binomial,
-              data = filter(long_data, trust_c == -1 & trial_c == -1))
+              data = filter(long_data, trust_c == -1 & con_c == -1))
 model_summary(m3.2)
 
 
