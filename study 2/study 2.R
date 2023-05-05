@@ -19,10 +19,10 @@ source('misc_functions.R')
 package_loader(pckgs)
 
 # read in all data files
-raw_data <- list.files(path = "study 2/data",
-                       pattern = "*.csv",
+raw_data <- list.files(path = 'study 2/data',
+                       pattern = '*.csv',
                        full.names = T) %>%
-  map_df(~read_csv(., col_types = cols(.default = "c")))
+  map_df(~read_csv(., col_types = cols(.default = 'c')))
 
 # prep the dataframe
 clean_data <- raw_data %>%
@@ -58,7 +58,7 @@ clean_data <- raw_data %>%
 
 # now sort out the implicit and mismatch responses (since explicit is a filler)
 test_data <- clean_data %>%
-  filter(trialType != "explicit") %>%
+  filter(trialType != 'explicit') %>%
   mutate(behaviorCat = case_when(
     dominance == 'Dominant' & congruence == 'congruent' ~ 'positive',
     dominance == 'Nondominant' & congruence == 'incongruent' ~ 'positive',
@@ -90,7 +90,7 @@ mod1 <- glmer(recognition ~ trial_c * dom_c * congruence_c
               + (dom_c|participant) 
               + (0 + trial_c|stimID:behavior),
               control = glmerControl(
-                optimizer = "bobyqa",
+                optimizer = 'bobyqa',
                 optCtrl = list(maxfun = 2e6)
               ),
               family = binomial,
@@ -100,46 +100,46 @@ model_summary(mod1)
 (int1 <- interact_plot(mod1, 
                        pred = trial_c, 
                        modx = congruence_c, 
-                       colors = "green",
-                       modx.labels = c("Congruent", "Incongruent"),
-                       pred.labels = c("Mismatch", "Match"),
-                       x.label = "Trial Type",
-                       y.label = "Trait Recognition",
-                       legend.main = "Congruence") + 
+                       colors = 'green',
+                       modx.labels = c('Congruent', 'Incongruent'),
+                       pred.labels = c('Face-Based', 'Behavior-Based'),
+                       x.label = 'Trial Type',
+                       y.label = 'Trait Recognition',
+                       legend.main = 'Congruence') + 
     theme_bw() + 
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
           axis.text.x = element_text(angle = 45, size = 8)))
 
 
-# split by congruence (main hypothesis test of the two-way interaction)
-congruent <- test_data %>%
-  filter(congruence == 'congruent')
-incongruent <- test_data %>%
-  filter(congruence == 'incongruent')
+# split by trial type (main hypothesis test of the two-way interaction)
+behavior_based <- test_data %>%
+  filter(trial_c == 1)
+face_based <- test_data %>%
+  filter(trial_c == -1)
 
-# model congruence effect first
-mod2.1 <- glmer(recognition ~ trial_c 
+# model behavior-based effect first
+mod2.1 <- glmer(recognition ~ congruence_c 
                 + (1|participant) 
                 + (0 + trial_c|stimID:behavior),
                 control = glmerControl(
-                  optimizer = "bobyqa",
+                  optimizer = 'bobyqa',
                   optCtrl = list(maxfun = 2e7)
                 ),
                 family = binomial,
-                data = congruent)
+                data = behavior_based)
 model_summary(mod2.1)
 
-# now incongruence
-mod2.2 <- glmer(recognition ~ trial_c 
+# now face-based
+mod2.2 <- glmer(recognition ~ congruence_c 
                 + (1|participant) 
                 + (0 + trial_c|stimID:behavior),
                 control = glmerControl(
-                  optimizer = "bobyqa",
+                  optimizer = 'bobyqa',
                   optCtrl = list(maxfun = 2e7)
                 ),
                 family = binomial,
-                data = incongruent)
+                data = face_based)
 model_summary(mod2.2)
 
 
@@ -157,7 +157,7 @@ summary_table <- test_data %>%
 
 
 
-ggplot(participant_table, aes(trialType, mean, fill = congruence)) +
+ggplot(participant_table, aes(congruence, mean, fill = trialType)) +
   geom_point(position = position_jitterdodge(.1, .05, .9),
              alpha = .5,
              color = 'black') +
@@ -165,13 +165,13 @@ ggplot(participant_table, aes(trialType, mean, fill = congruence)) +
               alpha = .9,
               position = position_dodge(.9)) +
   geom_point(data = summary_table,
-             aes(trialType, mean),
+             aes(congruence, mean),
              color = 'black',
              shape = 7,
              size = 3,
              position = position_dodge(.9)) +
   geom_errorbar(data = summary_table,
-                aes(trialType,
+                aes(congruence,
                     mean,
                     ymin = mean - ci,
                     ymax = mean + ci),
@@ -179,11 +179,11 @@ ggplot(participant_table, aes(trialType, mean, fill = congruence)) +
                 color = 'black',
                 position = position_dodge(.9)) +
   theme_bw() +
-  scale_fill_manual(labels = c('Face-Behavior Congruence',
-                               'Face-Behavior Incongruence'),
+  scale_fill_manual(labels = c('Behiavior-Based\nTrials',
+                              'Face-Based\nTrials'),
                     values = c('#006bb6', '#f58426')) +
-  scale_x_discrete(labels = c('Behiavior-Based\nTrials',
-                              'Face-Based\nTrials')) + 
+  scale_x_discrete(labels = c('Face-Behavior\nCongruence',
+                              'Face-Behavior\nIncongruence')) + 
   labs(x = '',
        y = 'Inference Rate',
        fill = '') +
@@ -210,7 +210,7 @@ dom_labs <- c('Dominant Targets', 'Nondominant Targets')
 names(dom_labs) <- c('Dominant', 'Nondominant')
 
 
-ggplot(participant_table2, aes(trialType, mean, fill = congruence)) +
+ggplot(participant_table2, aes(congruence, mean, fill = trialType)) +
   geom_point(position = position_jitterdodge(.1, .05, .9),
              alpha = .5,
              color = 'black') +
@@ -218,13 +218,13 @@ ggplot(participant_table2, aes(trialType, mean, fill = congruence)) +
               alpha = .9,
               position = position_dodge(.9)) +
   geom_point(data = summary_table2,
-             aes(trialType, mean),
+             aes(congruence, mean),
              color = 'black',
              shape = 7,
              size = 3,
              position = position_dodge(.9)) +
   geom_errorbar(data = summary_table2,
-                aes(trialType,
+                aes(congruence,
                     mean,
                     ymin = mean - ci,
                     ymax = mean + ci),
@@ -234,11 +234,11 @@ ggplot(participant_table2, aes(trialType, mean, fill = congruence)) +
   theme_bw() +
   facet_wrap(~ dominance,
              labeller = labeller(dominance = dom_labs)) +
-  scale_fill_manual(labels = c('Face-Behavior Congruence',
-                               'Face-Behavior Incongruence'),
+  scale_fill_manual(labels = c('Behiavior-Based\nTrials',
+                               'Face-Based\nTrials'),
                     values = c('#006bb6', '#f58426')) +
-  scale_x_discrete(labels = c('Behiavior-Based\nTrials',
-                              'Face-Based\nTrials')) + 
+  scale_x_discrete(labels = c('Face-Behavior\nCongruence',
+                              'Face-Behavior\nIncongruence')) + 
   labs(x = '',
        y = 'Inference Rate',
        fill = '') +
@@ -248,4 +248,4 @@ ggplot(participant_table2, aes(trialType, mean, fill = congruence)) +
 #        device = 'jpeg',
 #        units = 'cm',
 #        path = 'study 2')
-# 
+
