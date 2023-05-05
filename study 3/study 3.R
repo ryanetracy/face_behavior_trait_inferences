@@ -7,20 +7,15 @@
 
 
 # set packages
-pckgs <- c('car',
-           'lme4',
-           'lmerTest',
-           'ggpubr',
-           'afex',
-           'emmeans',
-           'effsize',
-           'DHARMa',
-           'jtools',
-           'rstatix',
-           'interactions',
-           'Rmisc',
-           'effectsize',
-           'tidyverse')
+pckgs <- c(
+  'lme4',
+  'lmerTest',
+  'interactions',
+  'parameters',
+  'effectsize',
+  'tidyverse',
+  'rstatix'
+)
 
 source('misc_functions.R')
 
