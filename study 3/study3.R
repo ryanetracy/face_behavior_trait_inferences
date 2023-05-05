@@ -1,9 +1,9 @@
-#############################
-# face-behavior memory
+#####################################
+# face vs behavior trait inference
 # study 3
-# dominant/nondominant
+# dominant vs nondominant
 # female faces
-#############################
+#####################################
 
 
 # set packages
