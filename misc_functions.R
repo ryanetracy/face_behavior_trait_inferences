@@ -23,7 +23,7 @@ model_summary <- function(model) {
   )
   
   output <- as.data.frame(output)
-  names(output)[4] <- 'p_value'
+  names(output)[5] <- 'p_value'
   
   return(output)
 }
